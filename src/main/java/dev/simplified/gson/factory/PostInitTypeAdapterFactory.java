@@ -7,9 +7,11 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import dev.sbs.api.io.gson.PostInit;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class PostInitTypeAdapterFactory implements TypeAdapterFactory {
 
     @Override
@@ -27,8 +29,14 @@ public class PostInitTypeAdapterFactory implements TypeAdapterFactory {
             public T read(JsonReader in) throws IOException {
                 T obj = delegate.read(in);
 
-                if (obj instanceof PostInit)
+                if (obj instanceof PostInit) {
                     ((PostInit) obj).postInit();
+                    try {
+                        ((PostInit) obj).postInit();
+                    } catch (Exception ex) {
+                        log.error("Exception during postInit of {}: {}", obj.getClass().getName(), ex.getMessage(), ex);
+                    }
+                }
 
                 return obj;
             }
