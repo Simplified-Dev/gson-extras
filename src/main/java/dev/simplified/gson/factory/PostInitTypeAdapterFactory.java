@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import dev.sbs.api.io.gson.PostInit;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -15,7 +16,7 @@ import java.io.IOException;
 public class PostInitTypeAdapterFactory implements TypeAdapterFactory {
 
     @Override
-    public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+    public <T> TypeAdapter<T> create(@NotNull Gson gson, TypeToken<T> type) {
         final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 
         return new TypeAdapter<>() {
@@ -30,7 +31,6 @@ public class PostInitTypeAdapterFactory implements TypeAdapterFactory {
                 T obj = delegate.read(in);
 
                 if (obj instanceof PostInit) {
-                    ((PostInit) obj).postInit();
                     try {
                         ((PostInit) obj).postInit();
                     } catch (Exception ex) {
