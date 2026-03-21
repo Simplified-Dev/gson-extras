@@ -4,11 +4,13 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import dev.sbs.api.util.StringUtil;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.UUID;
 
+@NoArgsConstructor
 public class UUIDTypeAdapter extends TypeAdapter<UUID> {
 
     @Override

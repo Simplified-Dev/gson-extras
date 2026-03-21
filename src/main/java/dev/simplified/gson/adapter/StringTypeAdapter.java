@@ -13,7 +13,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class StringTypeAdapter extends TypeAdapter<String> {
 
-    private final GsonSettings.StringType stringType;
+    private final @NotNull GsonSettings.StringType stringType;
 
     @Override
     public void write(@NotNull JsonWriter out, @NotNull String value) throws IOException {
