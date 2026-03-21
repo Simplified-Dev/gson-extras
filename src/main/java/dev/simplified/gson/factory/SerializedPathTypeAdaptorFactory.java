@@ -12,6 +12,8 @@ import com.google.gson.stream.JsonWriter;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
 import dev.sbs.api.io.gson.SerializedPath;
+import dev.sbs.api.reflection.Reflection;
+import dev.sbs.api.reflection.accessor.FieldAccessor;
 import dev.sbs.api.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,10 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 @NoArgsConstructor
 public final class SerializedPathTypeAdaptorFactory implements TypeAdapterFactory {
@@ -85,7 +85,7 @@ public final class SerializedPathTypeAdaptorFactory implements TypeAdapterFactor
                             }
                         }
 
-                        current.add(pathList.get(pathList.size() - 1), fieldValue);
+                        current.add(pathList.getLast(), fieldValue);
                     }
                 }
 
@@ -128,11 +128,11 @@ public final class SerializedPathTypeAdaptorFactory implements TypeAdapterFactor
                         continue;
 
                     // Convert it to the field type (getGenericType preserves parameterized types like Optional<Integer>)
-                    final Object innerValue = this.getGson().fromJson(innerJsonElement, fieldInfo.getField().getGenericType());
+                    final Object innerValue = this.getGson().fromJson(innerJsonElement, fieldInfo.getAccessor().getGenericType());
 
                     // Now it can be assigned to the object field...
-                    fieldInfo.getField().set(value, innerValue);
-                } catch (IllegalAccessException ex) {
+                    fieldInfo.getAccessor().set(value, innerValue);
+                } catch (Exception ex) {
                     throw new IOException(ex);
                 }
             }
@@ -145,31 +145,27 @@ public final class SerializedPathTypeAdaptorFactory implements TypeAdapterFactor
     @Getter
     private static final class FieldInfo {
 
-        private final Field field;
+        private final FieldAccessor<?> accessor;
         private final String jsonPath;
         private final String serializedName;
         private final ConcurrentList<String> jsonPathList;
 
-        private FieldInfo(@NotNull Field field, String jsonPath) {
-            this.field = field;
+        private FieldInfo(@NotNull FieldAccessor<?> accessor, @NotNull String jsonPath) {
+            this.accessor = accessor;
             this.jsonPath = jsonPath;
             this.jsonPathList = Concurrent.newList(StringUtil.split(jsonPath, "."));
-
-            SerializedName annotation = field.getAnnotation(SerializedName.class);
-            this.serializedName = annotation != null ? annotation.value() : field.getName();
+            this.serializedName = accessor.getAnnotation(SerializedName.class).map(SerializedName::value).orElse(accessor.getName());
         }
 
-        // Scan the given class for the JsonPathExpressionAnnotation
         private static @NotNull Collection<FieldInfo> of(@NotNull Class<?> clazz) {
+            Reflection<?> reflection = new Reflection<>(clazz);
+            reflection.setProcessingSuperclass(false);
             Collection<FieldInfo> collection = new ArrayList<>();
 
-            for (final Field field : clazz.getDeclaredFields()) {
-                final SerializedPath serializedPath = field.getAnnotation(SerializedPath.class);
-
-                if (Objects.nonNull(serializedPath)) {
-                    field.setAccessible(true);
-                    collection.add(new FieldInfo(field, serializedPath.value()));
-                }
+            for (FieldAccessor<?> accessor : reflection.getFields()) {
+                accessor.getAnnotation(SerializedPath.class).ifPresent(sp ->
+                    collection.add(new FieldInfo(accessor, sp.value()))
+                );
             }
 
             return collection;
