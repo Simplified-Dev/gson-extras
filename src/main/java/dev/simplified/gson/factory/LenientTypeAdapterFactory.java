@@ -12,6 +12,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import dev.sbs.api.collection.concurrent.Concurrent;
 import dev.sbs.api.collection.concurrent.ConcurrentList;
+import dev.sbs.api.io.gson.Capture;
 import dev.sbs.api.io.gson.Extract;
 import dev.sbs.api.io.gson.Lenient;
 import dev.sbs.api.io.gson.SerializedPath;
@@ -426,6 +427,9 @@ public final class LenientTypeAdapterFactory implements TypeAdapterFactory {
 
             for (FieldAccessor<?> accessor : reflection.getFields()) {
                 if (Modifier.isTransient(accessor.getModifiers()))
+                    continue;
+
+                if (accessor.hasAnnotation(Capture.class))
                     continue;
 
                 if (accessor.hasAnnotation(Lenient.class)) {
