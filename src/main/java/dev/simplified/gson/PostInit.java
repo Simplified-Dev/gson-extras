@@ -1,4 +1,4 @@
-package dev.simplified.io.gson;
+package dev.simplified.gson;
 
 import dev.simplified.gson.factory.PostInitTypeAdapterFactory;
 
