@@ -1,4 +1,4 @@
-package dev.sbs.api.io.gson;
+package dev.simplified.io.gson;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FormattingStyle;
@@ -9,11 +9,11 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import dev.sbs.api.collection.concurrent.Concurrent;
-import dev.sbs.api.collection.concurrent.ConcurrentList;
-import dev.sbs.api.collection.concurrent.ConcurrentMap;
-import dev.sbs.api.io.gson.adapter.StringTypeAdapter;
-import dev.sbs.api.util.StringUtil;
+import dev.simplified.collection.concurrent.Concurrent;
+import dev.simplified.collection.concurrent.ConcurrentList;
+import dev.simplified.collection.concurrent.ConcurrentMap;
+import dev.simplified.gson.adapter.StringTypeAdapter;
+import dev.simplified.util.StringUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.intellij.lang.annotations.PrintFormat;

@@ -1,6 +1,6 @@
-package dev.sbs.api.io.gson;
+package dev.simplified.io.gson;
 
-import dev.sbs.api.io.gson.factory.PostInitTypeAdapterFactory;
+import dev.simplified.gson.factory.PostInitTypeAdapterFactory;
 
 /**
  * Callback interface for post-deserialization initialization.

@@ -1,8 +1,8 @@
-package dev.sbs.api.io.gson;
+package dev.simplified.io.gson;
 
-import dev.sbs.api.io.gson.factory.SplitTypeAdapterFactory;
-import dev.sbs.api.tuple.pair.Pair;
-import dev.sbs.api.tuple.pair.PairOptional;
+import dev.simplified.gson.factory.SplitTypeAdapterFactory;
+import dev.simplified.tuple.pair.Pair;
+import dev.simplified.tuple.pair.PairOptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;

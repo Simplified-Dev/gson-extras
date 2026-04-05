@@ -1,6 +1,6 @@
-package dev.sbs.api.io.gson;
+package dev.simplified.io.gson;
 
-import dev.sbs.api.io.gson.factory.LenientTypeAdapterFactory;
+import dev.simplified.gson.factory.LenientTypeAdapterFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

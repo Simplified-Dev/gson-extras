@@ -1,6 +1,6 @@
-package dev.sbs.api.io.gson;
+package dev.simplified.io.gson;
 
-import dev.sbs.api.io.gson.factory.CaptureTypeAdapterFactory;
+import dev.simplified.gson.factory.CaptureTypeAdapterFactory;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 

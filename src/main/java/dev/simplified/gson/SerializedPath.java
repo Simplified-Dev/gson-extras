@@ -1,7 +1,7 @@
-package dev.sbs.api.io.gson;
+package dev.simplified.io.gson;
 
 import com.google.gson.annotations.SerializedName;
-import dev.sbs.api.io.gson.factory.SerializedPathTypeAdaptorFactory;
+import dev.simplified.gson.factory.SerializedPathTypeAdaptorFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;

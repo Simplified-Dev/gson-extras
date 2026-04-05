@@ -1,4 +1,4 @@
-package dev.sbs.api.io.gson.factory;
+package dev.simplified.gson.factory;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -6,7 +6,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import dev.sbs.api.io.gson.PostInit;
+import dev.simplified.gson.PostInit;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

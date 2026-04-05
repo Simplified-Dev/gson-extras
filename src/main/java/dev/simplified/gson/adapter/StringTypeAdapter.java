@@ -1,10 +1,10 @@
-package dev.sbs.api.io.gson.adapter;
+package dev.simplified.gson.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import dev.sbs.api.io.gson.GsonSettings;
-import dev.sbs.api.util.StringUtil;
+import dev.simplified.gson.GsonSettings;
+import dev.simplified.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
