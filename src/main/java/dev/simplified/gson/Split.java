@@ -1,8 +1,8 @@
 package dev.simplified.gson;
 
 import dev.simplified.gson.factory.SplitTypeAdapterFactory;
-import dev.simplified.tuple.pair.Pair;
-import dev.simplified.tuple.pair.PairOptional;
+import dev.simplified.collection.tuple.pair.Pair;
+import dev.simplified.collection.tuple.pair.PairOptional;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
