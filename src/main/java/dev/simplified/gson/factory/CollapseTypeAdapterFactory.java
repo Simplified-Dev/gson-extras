@@ -16,6 +16,7 @@ import dev.simplified.gson.Collapse;
 import dev.simplified.gson.Key;
 import dev.simplified.reflection.Reflection;
 import dev.simplified.reflection.accessor.FieldAccessor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -305,19 +306,14 @@ public final class CollapseTypeAdapterFactory implements TypeAdapterFactory {
 
     }
 
+    @Getter
     private static class CollapseFieldInfo {
 
-        @lombok.Getter
         private final @NotNull FieldAccessor<?> accessor;
-        @lombok.Getter
         private final @NotNull String serializedName;
-        @lombok.Getter
         private final boolean listMode;
-        @lombok.Getter
         private final @NotNull Type valueType;
-        @lombok.Getter
         private final @Nullable FieldAccessor<?> keyAccessor;
-        @lombok.Getter
         private final @Nullable String keySerializedName;
 
         private CollapseFieldInfo(@NotNull FieldAccessor<?> accessor) {
