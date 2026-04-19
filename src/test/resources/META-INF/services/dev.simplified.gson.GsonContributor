@@ -1,0 +1,3 @@
+dev.simplified.gson.GsonContributorTest$TestMarkerContributor
+dev.simplified.gson.GsonContributorTest$LowPriorityContributor
+dev.simplified.gson.GsonContributorTest$HighPriorityContributor

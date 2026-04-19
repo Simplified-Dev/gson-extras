@@ -37,9 +37,12 @@ import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 /**
  * Immutable configuration for building {@link Gson} instances.
@@ -127,13 +130,20 @@ public class GsonSettings {
      *       {@link CollapseTypeAdapterFactory}, {@link PostInitTypeAdapterFactory}</li>
      * </ul>
      * <p>
+     * After the built-ins are registered, every {@link GsonContributor} discovered on the
+     * classpath via {@link ServiceLoader} is applied in ascending
+     * {@link GsonContributor#priority() priority} order. Downstream modules contribute
+     * their own type adapters or exclusion strategies by shipping a
+     * {@code META-INF/services/dev.simplified.gson.GsonContributor} service file.
+     * <p>
      * Use {@link #create()} on the result to obtain a {@link Gson} instance, or
      * {@link #mutate()} to customize further before building.
      *
-     * @return a fully configured {@link GsonSettings} with all built-in adapters and factories
+     * @return a fully configured {@link GsonSettings} with all built-in adapters, factories,
+     *     and service-discovered contributor additions
      */
     public static @NotNull GsonSettings defaults() {
-        return builder()
+        Builder builder = builder()
             .withDateFormat("yyyy-MM-dd HH:mm:ss")
             .withStringType(GsonSettings.StringType.NULL)
             .withTypeAdapter(Color.class, new ColorTypeAdapter())
@@ -149,8 +159,13 @@ public class GsonSettings {
                 new CaptureTypeAdapterFactory(),
                 new CollapseTypeAdapterFactory(),
                 new PostInitTypeAdapterFactory()
-            )
-            .build();
+            );
+
+        StreamSupport.stream(ServiceLoader.load(GsonContributor.class).spliterator(), false)
+            .sorted(Comparator.comparingInt(GsonContributor::priority))
+            .forEach(builder::apply);
+
+        return builder.build();
     }
 
     /**
@@ -390,6 +405,18 @@ public class GsonSettings {
          */
         public @NotNull Builder withTypeAdapters(@NotNull Map<Type, Object> typeAdapters) {
             this.typeAdapters.putAll(typeAdapters);
+            return this;
+        }
+
+        /**
+         * Applies a {@link GsonContributor} to this builder, letting downstream modules
+         * contribute adapters, factories, or exclusion strategies without owning a static
+         * {@link Gson} instance.
+         *
+         * @param contributor the contributor to apply
+         */
+        public @NotNull Builder apply(@NotNull GsonContributor contributor) {
+            contributor.contribute(this);
             return this;
         }
 
