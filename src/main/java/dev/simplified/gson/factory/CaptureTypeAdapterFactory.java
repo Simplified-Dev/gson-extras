@@ -652,7 +652,7 @@ public final class CaptureTypeAdapterFactory implements TypeAdapterFactory {
                 return instance;
             } catch (ReflectiveOperationException ex) {
                 // Concrete type lacks an accessible no-arg constructor - degrade to ConcurrentMap
-                return new ConcurrentMap<>();
+                return Concurrent.newMap();
             }
         }
 
