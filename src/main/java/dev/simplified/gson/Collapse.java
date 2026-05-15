@@ -6,9 +6,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Marks a {@link java.util.Map Map} or {@link java.util.List List} field whose JSON
+ * Marks a {@link Map Map} or {@link List List} field whose JSON
  * source is a JSON object, injecting each entry's key into the value object via a
  * companion {@link Key @Key} field.
  * <p>

@@ -1,5 +1,6 @@
 package dev.simplified.gson;
 
+import com.google.gson.annotations.SerializedName;
 import dev.simplified.gson.factory.CaptureTypeAdapterFactory;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -8,9 +9,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Map;
 
 /**
- * Marks a {@link java.util.Map Map} field to capture dynamic JSON entries that do not
+ * Marks a {@link Map Map} field to capture dynamic JSON entries that do not
  * correspond to any known (declared) field on the enclosing class.
  * <p>
  * Behavior depends on {@link #filter()}:
@@ -33,7 +35,7 @@ import java.lang.annotation.Target;
  * each group is deserialized as an instance of that class.
  * <p>
  * Affix direction is controlled by the value class field's
- * {@link com.google.gson.annotations.SerializedName @SerializedName}:
+ * {@link SerializedName @SerializedName}:
  * <ul>
  *     <li><b>Prefix</b> - {@code ^} at start or {@code _} at end
  *         (e.g. {@code @SerializedName("^toggle_")} or {@code @SerializedName("toggle_")})</li>
@@ -93,7 +95,7 @@ public @interface Capture {
 
     /**
      * When {@code true}, the factory descends into the field's own JSON object
-     * (identified by {@link com.google.gson.annotations.SerializedName @SerializedName},
+     * (identified by {@link SerializedName @SerializedName},
      * {@link SerializedPath @SerializedPath}, or the field name) before applying
      * capture logic to its entries.
      * <p>

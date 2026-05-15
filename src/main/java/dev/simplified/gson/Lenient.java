@@ -6,9 +6,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collection;
+import java.util.Map;
 
 /**
- * Marks a {@link java.util.Map Map} or {@link java.util.Collection Collection} field
+ * Marks a {@link Map Map} or {@link Collection Collection} field
  * for lenient deserialization.
  * <p>
  * During deserialization, entries whose key or value types are incompatible with the

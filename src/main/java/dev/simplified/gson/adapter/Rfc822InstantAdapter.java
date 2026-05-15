@@ -1,6 +1,8 @@
 package dev.simplified.gson.adapter;
 
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -23,8 +25,8 @@ import java.time.format.DateTimeFormatter;
  * {@link DateTimeFormatter#RFC_1123_DATE_TIME} parses both RFC 822 and its successor
  * RFC 1123/2822 forms, which covers every feed generator encountered in the wild.
  * <p>
- * Applied per-field via {@link com.google.gson.annotations.JsonAdapter @JsonAdapter} so
- * the global {@link com.google.gson.Gson Gson} instance can continue using its
+ * Applied per-field via {@link JsonAdapter @JsonAdapter} so
+ * the global {@link Gson Gson} instance can continue using its
  * default handling for every other {@link Instant} field across the codebase
  * (epoch-millis for Hypixel API responses, ISO-8601 elsewhere).
  */

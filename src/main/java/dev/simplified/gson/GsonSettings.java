@@ -62,25 +62,39 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public class GsonSettings {
 
-    /** Date format pattern passed to {@link GsonBuilder#setDateFormat(String)}, if present. */
+    /**
+     * Date format pattern passed to {@link GsonBuilder#setDateFormat(String)}, if present.
+     */
     private final @NotNull Optional<String> dateFormat;
 
-    /** Output formatting style applied to the {@link Gson} instance. */
+    /**
+     * Output formatting style applied to the {@link Gson} instance.
+     */
     private final @NotNull FormattingStyle style;
 
-    /** Whether null values are included in serialized output. */
+    /**
+     * Whether null values are included in serialized output.
+     */
     private final boolean serializingNulls;
 
-    /** Strategy for handling empty and null strings during serialization. */
+    /**
+     * Strategy for handling empty and null strings during serialization.
+     */
     private final @NotNull StringType stringType;
 
-    /** Per-type adapters registered with {@link GsonBuilder#registerTypeAdapter(Type, Object)}. */
+    /**
+     * Per-type adapters registered with {@link GsonBuilder#registerTypeAdapter(Type, Object)}.
+     */
     private final @NotNull ConcurrentMap<Type, Object> typeAdapters;
 
-    /** Adapter factories registered with {@link GsonBuilder#registerTypeAdapterFactory(TypeAdapterFactory)}. */
+    /**
+     * Adapter factories registered with {@link GsonBuilder#registerTypeAdapterFactory(TypeAdapterFactory)}.
+     */
     private final @NotNull ConcurrentList<TypeAdapterFactory> factories;
 
-    /** Exclusion strategies applied to both serialization and deserialization. */
+    /**
+     * Exclusion strategies applied to both serialization and deserialization.
+     */
     private final @NotNull ConcurrentList<ExclusionStrategy> exclusionStrategies;
 
     /**

@@ -1,6 +1,7 @@
 package dev.simplified.gson;
 
 import com.google.gson.ExclusionStrategy;
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +11,7 @@ import java.util.ServiceLoader;
 /**
  * Extension point for contributing {@link TypeAdapter}s, {@link TypeAdapterFactory factories},
  * or {@link ExclusionStrategy exclusion strategies} to {@link GsonSettings#defaults()}
- * without owning a static {@link com.google.gson.Gson} instance.
+ * without owning a static {@link Gson} instance.
  * <p>
  * Contributors are discovered via {@link ServiceLoader} from every classpath entry that
  * declares a {@code META-INF/services/dev.simplified.gson.GsonContributor} resource, and
