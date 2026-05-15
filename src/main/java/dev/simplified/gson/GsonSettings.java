@@ -37,6 +37,7 @@ import java.awt.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -526,7 +527,7 @@ public class GsonSettings {
          * @return this builder
          */
         public @NotNull Builder withPrewarmTypes(@NotNull Type... types) {
-            for (Type type : types) this.prewarmTypes.add(type);
+            this.prewarmTypes.addAll(Arrays.asList(types));
             return this;
         }
 
