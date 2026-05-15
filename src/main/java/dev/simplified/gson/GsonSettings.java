@@ -9,6 +9,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
 import dev.simplified.collection.Concurrent;
 import dev.simplified.collection.ConcurrentList;
 import dev.simplified.collection.ConcurrentMap;
@@ -36,6 +37,7 @@ import java.awt.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -82,6 +84,30 @@ public class GsonSettings {
     private final @NotNull ConcurrentList<ExclusionStrategy> exclusionStrategies;
 
     /**
+     * Whether {@link #create()} should warm the resulting Gson's internal {@code TypeAdapter}
+     * cache for the union of {@link #prewarmTypes} and {@link #typeAdapters typeAdapters.keySet()}
+     * before returning. Defaults to {@code true} - any caller that registers a custom type
+     * adapter or an explicit prewarm type gets adapter resolution done eagerly. Set to
+     * {@code false} to defer all adapter generation to first decode.
+     */
+    private final boolean prewarmAdapters;
+
+    /**
+     * Additional types whose {@code TypeAdapter} should be eagerly resolved inside
+     * {@link #create()}, on top of the types already registered via {@link #typeAdapters}.
+     * Empty by default; populate via {@link Builder#withPrewarmTypes(Type...)} when the
+     * caller knows in advance which shapes will be decoded but has no custom adapter to
+     * register (the typical Feign-contract-walk case - POJOs that use Gson's default
+     * reflective adapter). Adapter resolution failures are swallowed per-type so one bad
+     * type does not stop the rest.
+     *
+     * <p>Types that already appear as keys in {@link #typeAdapters} do not need to be
+     * listed here - {@link #create()} warms them automatically when {@link #prewarmAdapters}
+     * is on.</p>
+     */
+    private final @NotNull ConcurrentList<Type> prewarmTypes;
+
+    /**
      * Creates a new empty {@link Builder}.
      *
      * @return a new builder
@@ -111,7 +137,45 @@ public class GsonSettings {
             builder.addDeserializationExclusionStrategy(strategy);
         });
 
-        return builder.create();
+        Gson gson = builder.create();
+
+        if (this.prewarmAdapters) {
+            // Warm both the explicit prewarm list and every type that already has a custom
+            // adapter registered. Registering a custom adapter implies the caller cares about
+            // that type, so eagerly resolving it matches intent.
+            if (!this.prewarmTypes.isEmpty())
+                prewarm(gson, this.prewarmTypes);
+            if (!this.typeAdapters.isEmpty())
+                prewarm(gson, this.typeAdapters.keySet());
+        }
+
+        return gson;
+    }
+
+    /**
+     * Eagerly resolves and caches the {@code TypeAdapter} for every type in {@code types}
+     * against the given {@code Gson} instance, so that subsequent deserialisation of those
+     * types skips the first-request adapter generation cost.
+     * <p>
+     * Adapter resolution failures are swallowed per-type - a single bad type does not abort
+     * the warm-up of the rest. This method exposes the same warm-up that {@link #create()}
+     * performs automatically when {@link Builder#withPrewarmTypes(Type...)} is used, for
+     * callers that hold a raw {@link Gson} instead of a {@code GsonSettings}.
+     *
+     * @param gson the Gson instance whose adapter cache should be warmed
+     * @param types the types to resolve adapters for
+     * @return the same {@code gson} reference for fluent chaining
+     */
+    public static @NotNull Gson prewarm(@NotNull Gson gson, @NotNull Iterable<Type> types) {
+        for (Type type : types) {
+            try {
+                gson.getAdapter(TypeToken.get(type));
+            } catch (Throwable ignored) {
+                // A single bad type must not abort warming the rest. Gson caches the
+                // failure internally so we will not retry on subsequent calls.
+            }
+        }
+        return gson;
     }
 
     /**
@@ -191,7 +255,9 @@ public class GsonSettings {
             .withStringType(gsonSettings.getStringType())
             .withTypeAdapters(gsonSettings.getTypeAdapters())
             .withFactories(gsonSettings.getFactories())
-            .withExclusionStrategies(gsonSettings.getExclusionStrategies());
+            .withExclusionStrategies(gsonSettings.getExclusionStrategies())
+            .withPrewarmAdapters(gsonSettings.isPrewarmAdapters())
+            .withPrewarmTypes(gsonSettings.getPrewarmTypes());
     }
 
     /**
@@ -215,6 +281,8 @@ public class GsonSettings {
         private ConcurrentMap<Type, Object> typeAdapters = Concurrent.newMap();
         private ConcurrentList<TypeAdapterFactory> factories = Concurrent.newList();
         private ConcurrentList<ExclusionStrategy> exclusionStrategies = Concurrent.newList();
+        private boolean prewarmAdapters = true;
+        private final ConcurrentList<Type> prewarmTypes = Concurrent.newList();
 
         /**
          * Enables pretty-print formatting.
@@ -429,6 +497,52 @@ public class GsonSettings {
             return this;
         }
 
+        /**
+         * Sets whether the resulting {@link Gson} should eagerly resolve adapters for the
+         * registered {@link #withPrewarmTypes(Type...) prewarm types} when
+         * {@link GsonSettings#create()} is invoked.
+         * <p>
+         * Defaults to {@code true}. Set to {@code false} to defer adapter generation to
+         * first decode (useful for tests that want a fully cold Gson, or for debugging
+         * adapter-generation issues).
+         *
+         * @param prewarmAdapters whether to warm adapters at create-time
+         * @return this builder
+         */
+        public @NotNull Builder withPrewarmAdapters(boolean prewarmAdapters) {
+            this.prewarmAdapters = prewarmAdapters;
+            return this;
+        }
+
+        /**
+         * Registers one or more types whose {@code TypeAdapter} should be eagerly resolved
+         * inside {@link GsonSettings#create()}.
+         * <p>
+         * Subsequent deserialisation of the registered types skips the first-request adapter
+         * generation cost (typically 1-5 ms per fresh type). Adapter resolution is bounded
+         * by {@link GsonSettings#prewarm(Gson, Iterable)} which swallows per-type failures so
+         * a single malformed type cannot block the warm-up of others.
+         *
+         * @param types the types to warm at create-time
+         * @return this builder
+         */
+        public @NotNull Builder withPrewarmTypes(@NotNull Type... types) {
+            this.prewarmTypes.addAll(Arrays.asList(types));
+            return this;
+        }
+
+        /**
+         * Registers a collection of types whose {@code TypeAdapter} should be eagerly
+         * resolved inside {@link GsonSettings#create()}.
+         *
+         * @param types the types to warm at create-time
+         * @return this builder
+         */
+        public @NotNull Builder withPrewarmTypes(@NotNull Iterable<Type> types) {
+            for (Type type : types) this.prewarmTypes.add(type);
+            return this;
+        }
+
         /** {@inheritDoc} */
         public @NotNull GsonSettings build() {
             return new GsonSettings(
@@ -438,7 +552,9 @@ public class GsonSettings {
                 this.stringType,
                 this.typeAdapters,
                 this.factories,
-                this.exclusionStrategies
+                this.exclusionStrategies,
+                this.prewarmAdapters,
+                this.prewarmTypes
             );
         }
 
